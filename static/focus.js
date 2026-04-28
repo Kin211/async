@@ -49,25 +49,14 @@ run();
 // }
 
 function sendRequest(url) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", url, true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    try {
-                        let res = JSON.parse(xhr.response);
-                        resolve(res);
-                    } catch (er) {
-                        reject(er);
-                    }
-                }
-                reject("Bad status: " + xhr.status);
-            }
-        };
-        xhr.send();
+    return fetch(url)
+    .then(res => {
+        if (!(res.status === 200)) {
+            throw new Error(res.statusText);
+        }
+        return res.json();
     })
+    .catch(error => console.log(error));
 }
 
 function reqsToMap(requisites) {
