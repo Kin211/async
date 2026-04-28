@@ -6,15 +6,19 @@ const API = {
 };
 
 async function run() {
-    let orgOgrns = await sendRequest(API.organizationList);
-    let orgs = orgOgrns.join(',');
-    let requisites = await sendRequest(`${API.orgReqs}?ogrn=${orgs}`);
-    const orgsMap = reqsToMap(requisites);
-    let analytics = await sendRequest(`${API.analytics}?ogrn=${orgs}`);
-    addInOrgsMap(orgsMap, analytics, "analytics");
-    let buh = await sendRequest(`${API.buhForms}?ogrn=${orgs}`);
-    addInOrgsMap(orgsMap, buh, "buhForms");
-    render(orgsMap, orgOgrns);
+    try {
+        let orgOgrns = await sendRequest(API.organizationList);
+        let orgs = orgOgrns.join(',');
+        let requisites = await sendRequest(`${API.orgReqs}?ogrn=${orgs}`);
+        const orgsMap = reqsToMap(requisites);
+        let analytics = await sendRequest(`${API.analitics}?ogrn=${orgs}`);
+        addInOrgsMap(orgsMap, analytics, "analytics");
+        let buh = await sendRequest(`${API.buhForms}?ogrn=${orgs}`);
+        addInOrgsMap(orgsMap, buh, "buhForms");
+        render(orgsMap, orgOgrns);
+    } catch (err) {
+        console.error(err);
+    }
 
     // sendRequest(API.organizationList, (orgOgrns) => {
     //     const ogrns = orgOgrns.join(",");
@@ -51,12 +55,12 @@ run();
 function sendRequest(url) {
     return fetch(url)
     .then(res => {
-        if (!(res.status === 200)) {
-            throw new Error(res.statusText);
+        if (!res.ok) {
+            alert(res.status +" "+ res.statusText);
+            throw Error("Request failed with status: " + res.statusText);
         }
         return res.json();
-    })
-    .catch(error => console.log(error));
+    });
 }
 
 function reqsToMap(requisites) {
